@@ -16,7 +16,7 @@ from kivy.clock import Clock
 from kivy.utils import get_color_from_hex
 from kivy.config import Config
 
-from db.entidades import easy_questions
+from db.entidades import questions
 from db.repositorios import users_repositorio
 
 import configparser
@@ -159,13 +159,13 @@ class CronoWidget(Label):
 
 
 class Perguntas(Screen):
-    qts = easy_questions.nQ
+    qts = questions.nQ
     id_q = 1
     fimGame = 1
     bonus = 1
 
     def on_pre_enter(self):
-        self.idq = easy_questions.aleatorio2()
+        self.idq = questions.aleatorio2()
         self.addQuestion()
 
     def addQuestion(self):
@@ -186,7 +186,7 @@ class Perguntas(Screen):
 
             self.ids.box.add_widget(self.cronos)
             self.ids.box.add_widget(Pergunta(tQ=self.idq[self.id_q - 1]))
-            answers = list(easy_questions.answers(self.idq[self.id_q - 1]))
+            answers = list(questions.answers(self.idq[self.id_q - 1]))
             self.id_q += 1
             self.fimGame += 1
             perguntas = []
@@ -227,7 +227,7 @@ class Perguntas(Screen):
 
 class Alternativa(BoxLayout):
     correct = ''
-    qts = easy_questions.questions
+    qts = questions.questions
 
     def __init__(self, text='', correct=False, **kwargs):
         super().__init__(**kwargs)
@@ -246,7 +246,7 @@ class Alternativa(BoxLayout):
 
 class AlternativaCorrect(BoxLayout):
     correct = ''
-    qts = easy_questions.questions
+    qts = questions.questions
 
     def __init__(self, text='', correct=False, **kwargs):
         super().__init__(**kwargs)
@@ -266,14 +266,13 @@ class Pergunta(BoxLayout):
 
     def __init__(self, tQ, **kwargs):
         super().__init__(**kwargs)
-        self.qts = easy_questions.questions1(tQ)[0]
+        self.qts = questions.questions1(tQ)[0]
         self.addPergunta()
 
     def addPergunta(self):
         question = self.qts
         question = self.quebraLinha(question)
         self.ids.label.text = question
-        # self.i.pop(0)
 
     def quebraLinha(self, word):
         word2 = word.split(' ')
