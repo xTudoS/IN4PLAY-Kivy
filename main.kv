@@ -1,0 +1,428 @@
+#:import utils kivy.utils
+<Telas>:
+    Welcome:
+        name: 'welcome'
+
+    User:
+        name: 'user'
+
+    Menu2:
+        name: 'menu'
+
+    Perguntas:
+        name: 'perguntas'
+
+    TimeOut:
+        name: 'timeout'
+
+    Finish:
+        name: 'fim'
+
+<Teste>:
+    canvas:
+        Rectangle:
+            source: 'img/bg.png'
+            size: self.width, self.height
+    on_touch_down:
+        app.root.current = 'user'
+
+<WelcomeText>:
+    orientation: 'vertical'
+    padding: 1
+    pos_hint_y: .8
+    on_touch_down:
+        app.manager.current = 'user'
+
+<Menu2>:
+    canvas:
+        Rectangle:
+            source: 'img/bg.png'
+            size: self.width, self.height
+
+    FloatLayout:
+        padding: 10
+        spacing: 10
+        orientation: 'vertical'
+        Button:
+            font_size: 40
+            id: play_game
+            background_color: 0, 0, 0 ,0
+            color: 16.24, 100, 100, 1
+            size_hint: .33, .12
+            text: 'PLAY GAME'
+            pos_hint:{'center_x':.5, 'top':.81}
+            font_name: 'fonts/Good_Morning.ttf'
+            on_press:
+                play_game.color = 255, 69, 0, 1
+            on_release:
+                play_game.color = 16.24, 100, 100, 1
+                app.root.current = 'perguntas'
+                root.manager.transition.direction = 'up'
+        Button:
+            id: leaderboards
+            font_size: 40
+            background_color: 0, 0, 0 ,0
+            color: 16.24, 100, 100, 1
+            size_hint: .253, .12
+            text: 'LEADERBOARDS'
+            pos_hint:{'center_x':.5, 'top':.64}
+            font_name: 'fonts/Good_Morning.ttf'
+            on_press:
+                leaderboards.color = 255, 69, 0, 1
+            on_release:
+                leaderboards.color = 16.24, 100, 100, 1
+                root.leaderboards()
+
+        Button:
+            id: signOut
+            font_size: 40
+            font_name: 'fonts/Good_Morning.ttf'
+            background_color: 0, 0, 0 ,0
+            color: 16.24, 100, 100, 1
+            size_hint: .19, .12
+            text: 'ABOUT'
+            pos_hint: {'center_x':0.5, 'top':.47}
+            on_press:
+                signOut.color = 255, 69, 0, 1
+
+            on_release:
+                signOut.color = 16.24, 100, 100, 1
+                root.signOut()
+        Button:
+            id: exit
+            font_size: 40
+            background_color: 0, 0, 0 ,0
+            color: 16.24, 100, 100, 1
+            size_hint: .15, .12
+            text: 'EXIT'
+            pos_hint:{'center_x':.5, 'top':.325}
+            font_name: 'fonts/Good_Morning.ttf'
+            on_press:
+                exit.color = 255, 69, 0, 1
+            on_release:
+                exit.color = 16.24, 100, 100, 1
+                root.close()
+
+
+<Close>:
+    size_hint: .4, .4
+
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            text: 'DO YOU WANT TO QUIT?'
+            halign: 'center'
+            valign: 'middle'
+
+        BoxLayout:
+            size_hint_y: .2
+            Button:
+                text: 'YES'
+                on_release:
+                    app.stop()
+
+            Button:
+                text: 'NO'
+                on_release:
+                    root.dismiss()
+
+<User>:
+    canvas:
+        Rectangle:
+            source: 'img/bg.png'
+            size: self.width, self.height
+    FloatLayout:
+        padding: 10
+        spacing: 10
+        #size_hint: 1., 1.
+        Label:
+            color: 16.24, 100, 100, 1
+            text: 'LOGIN OR SIGN UP'
+
+            font_size: 40
+            color: (0, 0, 139, 1)
+            font_name: 'fonts/ZCOOLKuaiLe-Regular.ttf'
+            pos_hint: {'top':1.2}
+            halign: 'center'
+
+        BoxLayout:
+            pos_hint: {'center_x':.5, 'top':.6}
+            orientation: 'vertical'
+            size_hint: .1, .18
+            TextInput:
+                text: root.nickMudar()
+                id: nick
+                pos_hint: {'top': 1.}
+                multiline: False
+                halign: 'center'
+                on_focus: root.nickMudar()
+
+            TextInput:
+                text: root.passMudar()
+                id: passwd
+                multiline: False
+                halign: 'center'
+                on_focus: root.passMudar()
+
+
+            Button:
+                id: login
+                text: 'LOG IN'
+                halign: 'center'
+                on_release:
+                    root.login()
+
+
+            Button:
+                text: 'SIGN UP'
+                halign: 'center'
+                on_release:
+                    root.signup()
+
+<ErrorSignUp>:
+    size_hint: .7, .8
+
+    BoxLayout:
+        BoxLayout:
+            padding: 4
+            spacing: 4
+            orientation: 'vertical'
+            Label:
+                font_size: 20
+                text: 'Sorry, we were unable to complete your registration.'
+
+
+            Label:
+                font_size: 20
+                text: 'To create an account, you must meet the following requirements:'
+
+
+            Label:
+                font_size: 20
+                text: 'Your nickname should not be in use;'
+
+
+            Label:
+                font_size: 20
+                text: 'Your nickname must not be "nickname;"'
+
+
+            Label:
+                font_size: 20
+                text: 'Your password must be a minimum of 4 characters and a maximum of 8 characters;'
+
+            Label:
+                font_size: 20
+                text: 'Your password must not be "password"'
+
+
+            Button:
+                font_size: 20
+                text: 'Try Again'
+                on_release:
+                    root.dismiss()
+
+<ErrorLogIn>:
+    size_hint: .4, .4
+
+    BoxLayout:
+        BoxLayout:
+            padding: 4
+            spacing: 4
+            orientation: 'vertical'
+
+            Label:
+                font_size: 20
+                text: 'User not found in database.'
+
+            Label:
+                font_size: 20
+                text: 'Check your details and try again.'
+
+            Button:
+                font_size: 20
+                text: 'Try Again'
+                on_release:
+                    root.dismiss()
+
+<Perguntas>:
+    canvas:
+        Rectangle:
+            source: 'img/bg1.png'
+            size: self.width, self.height
+    BoxLayout:
+        id:box
+        orientation:'vertical'
+        size_hint_y:None
+        height:self.minimum_height
+        pos_hint: {'top': .8}
+
+        TextInput:
+            background_color: 0, 0, 0, 0
+            cursor_color: 0, 0, 0, 0
+            id: fimGame
+            focus: False
+            is_focusable: False
+
+            on_focus:
+                app.root.current = 'fim'
+
+<Pergunta>:
+    size_hint_y:None
+    height:300
+
+    Label:
+        outline_color: 0,0,0,1
+        outline_width: 3
+        color: 1,1,1,1
+        halign: 'center'
+        id:label
+        font_size:50
+
+
+
+<Botao@ButtonBehavior+Label>:
+    background_color: 1, 1, 1, 1
+    canvas.before:
+        Color:
+            rgba: (.1, .5, .7, 1) if self.state=='normal' else utils.get_color_from_hex('#BE1212')
+
+        Ellipse:
+            pos: self.pos
+            size: self.height, self.height
+        Ellipse:
+            pos: self.x + self.width - self.height, self.y
+            size: self.height, self.height
+        Rectangle:
+            pos: self.x + self.height / 2, self.y
+            size: self.width - self.height, self.height
+
+<Botao2@ButtonBehavior+Label>:
+    background_color: 1, 1, 1, 1
+    canvas.before:
+        Color:
+            rgba: (.1, .5, .7, 1) if self.state=='normal' else utils.get_color_from_hex('#19A517')
+
+
+        Ellipse:
+            pos: self.pos
+            size: self.height, self.height
+        Ellipse:
+            pos: self.x + self.width - self.height, self.y
+            size: self.height, self.height
+        Rectangle:
+            pos: self.x + self.height / 2, self.y
+            size: self.width - self.height, self.height
+
+<Alternativa>:
+    size_hint_y: None
+    height: 50
+    width: self.minimum_width
+    padding: 1
+    Botao:
+        halign: 'center'
+        valign: 'middle'
+        id: alternativa
+        font_size: 30
+        on_release:
+            app.root.get_screen('perguntas').removeAll(remove=True, correct=root.corrects(alternativa.text))
+
+<AlternativaCorrect>:
+    size_hint_y: None
+    height: 50
+    width: self.minimum_width
+    padding: 1
+    Botao2:
+        halign: 'center'
+        valign: 'middle'
+        id: alternativa
+        font_size: 30
+
+        on_release:
+            app.root.get_screen('perguntas').removeAll(remove=True, correct=root.corrects(alternativa.text))
+
+
+<Finish>:
+    canvas:
+        Rectangle:
+            source: 'img/bg.png'
+            size: self.width, self.height
+    on_touch_down:
+        app.root.current = 'menu'
+        root.manager.transition.direction = 'right'
+
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 1
+        pos_hint_y: .8
+
+        Button:
+            id: finish
+            halign: 'center'
+            font_size: 60
+            color: 0, 0, 0, 1
+            background_color: 0, 0, 0, 0
+            font_name: 'fonts/Letters_for_Learners.ttf'
+
+<CronoWidget>:
+    text: root.cronoValueText
+    id: valor_cronometro
+    font_size: 70
+    outline_color: 0,0,0,1
+    outline_width: 3
+    color: 1,1,1,1
+    BoxLayout:
+        size_hint: 0,0
+        TextInput:
+            id: time
+            focus: False
+            is_focusable: False
+            background_color: 0, 0, 0, 0
+            on_focus:
+                app.root.get_screen('perguntas').removeAll(True, True)
+                app.root.current = 'timeout'
+
+
+
+<TimeOut>:
+    canvas:
+        Rectangle:
+            source: 'img/bg.png'
+            size: self.width, self.height
+    on_touch_down:
+        app.root.current = 'menu'
+        root.manager.transition.direction = 'right'
+
+    BoxLayout:
+        orientation: 'vertical'
+        padding: 1
+        pos_hint_y: .8
+
+        Button:
+            id: timeOut
+            halign: 'center'
+            font_size: 60
+            color: 0, 0, 0, 1
+            background_color: 0, 0, 0, 0
+            font_name: 'fonts/Letters_for_Learners.ttf'
+
+<Leaderboards>:
+    size_hint: .4, .8
+    BoxLayout:
+        orientation: 'vertical'
+        id: lider
+        on_touch_down:
+            root.dismiss()
+
+<SignOut>:
+    size_hint: .3, .4
+    BoxLayout:
+        TextInput:
+            id: logoff
+            focus: False
+            is_focusable: False
+            background_color: 0,0,0,0
+            foreground_color: 1,1,1,1
+            halign: 'center'
+            valign: 'middle'
+
