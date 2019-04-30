@@ -1,21 +1,41 @@
 from db.fabricas import fabrica_conexao
 from random import shuffle, choice
 
-fabrica = fabrica_conexao.FabricaConexao.conectar()
-cursor = fabrica.cursor()
+erro = 0
 
-cursor.execute("SELECT * FROM questions")
+try:
+    fabrica = fabrica_conexao.FabricaConexao.conectar()
+    cursor = fabrica.cursor()
+    cursor.execute("SELECT * FROM questions")
+except:
+    erro = 1
 
+if erro:
+    fabrica = fabrica_conexao.FabricaConexao.conect()
+    cursor = fabrica.cursor()
+    cursor.execute("SELECT * FROM questions")
+    
+    
 questions = list(cursor.fetchall())
 
 
 cursor.execute("SELECT answer FROM answers")
 
-#answer = cursor.fetchall()
-
 
 def questions1(id):
-    cursor.execute("SELECT question FROM questions WHERE id = %s", str(id))
+    erro = 0
+
+    try:
+        fabrica = fabrica_conexao.FabricaConexao.conectar()
+        cursor = fabrica.cursor()
+        cursor.execute("SELECT question FROM questions WHERE id = ?", (str(id),))
+    except:
+        erro = 1
+
+    if erro:
+        fabrica = fabrica_conexao.FabricaConexao.conect()
+        cursor = fabrica.cursor()
+        cursor.execute("SELECT question FROM questions WHERE id = %s", (str(id),))
 
     return cursor.fetchone()
 
@@ -36,8 +56,20 @@ nQ = len(aleatorio)
 
 
 def answers(id_question):
-    cursor.execute("SELECT answer FROM answers WHERE id = %s", str(id_question))
+    erro = 0
 
+    try:
+        fabrica = fabrica_conexao.FabricaConexao.conectar()
+        cursor = fabrica.cursor()
+        cursor.execute("SELECT answer FROM answers WHERE id = ?", (str(id_question),))
+    except:
+        erro = 1
+
+    if erro:
+        fabrica = fabrica_conexao.FabricaConexao.conect()
+        cursor = fabrica.cursor()
+        cursor.execute("SELECT answer FROM answers WHERE id = %s", (str(id_question),))
+    
     return cursor.fetchall()
 
 
@@ -49,3 +81,5 @@ def get_ans():
 
     return l
 
+
+fabrica.close()

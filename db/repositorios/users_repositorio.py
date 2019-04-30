@@ -5,54 +5,43 @@ class Users_Repositorio:
 
     @staticmethod
     def add_user(user, passwd, word):
-        fabrica = fabrica_conexao.FabricaConexao.conectar()
+        try:
+            fabrica = fabrica_conexao.FabricaConexao.conect()
+        except:
+            fabrica = fabrica_conexao.FabricaConexao.conectar()
         cursor = fabrica.cursor()
         try:
-            fabrica.begin()
+            cursor.execute("INSERT INTO users(nick, passwd, word) VALUES (?, ?, ?)", (user, passwd, word))
+        except:
             cursor.execute("INSERT INTO users(nick, passwd, word) VALUES (%s, %s, %s)", (user, passwd, word))
-            fabrica.commit()
-        except:
-            fabrica.rollback()
-        finally:
-            fabrica.close()
-
-    @staticmethod
-    def add_record(record, id):
-        fabrica = fabrica_conexao.FabricaConexao.conectar()
-        cursor = fabrica.cursor()
-        try:
-            fabrica.begin()
-            cursor.execute("INSERT INTO users(record) VALUES (%s)", (id, record))
-            fabrica.commit()
-        except:
-            fabrica.rollback()
-
-        finally:
-            fabrica.close()
+        fabrica.commit()
 
     @staticmethod
     def set_record(id, record):
-        fabrica = fabrica_conexao.FabricaConexao.conectar()
+        try:
+            fabrica = fabrica_conexao.FabricaConexao.conect()
+        except:
+            fabrica = fabrica_conexao.FabricaConexao.conectar()
         cursor = fabrica.cursor()
         try:
-            fabrica.begin()
-            cursor.execute("UPDATE users SET record = %s WHERE id = %s", (str(record), str(id)))
-            fabrica.commit()
+            cursor.execute("UPDATE users SET record = ? WHERE id = ?", (str(record), str(id)))
         except:
-            fabrica.rollback()
-
-        finally:
-            fabrica.close()
+            cursor.execute("UPDATE users SET record = %s WHERE id = %s", (str(record), str(id)))
+        fabrica.commit()
 
     @staticmethod
     def get_records(id):
-        fabrica = fabrica_conexao.FabricaConexao.conectar()
         try:
-            cursor = fabrica.cursor()
-            cursor.execute(f"SELECT record FROM users WHERE id = {id}")
+            fabrica = fabrica_conexao.FabricaConexao.conect()
+        except:
+            fabrica = fabrica_conexao.FabricaConexao.conectar()
 
-        finally:
-            fabrica.close()
+        cursor = fabrica.cursor()
+        try:
+            cursor.execute("SELECT record FROM users WHERE id = ?", (str(id),))
+        except:
+            cursor.execute("SELECT record FROM users WHERE id = %s", str(id))
+
         a = cursor.fetchall()
         for x in a:
             for y in x:
@@ -60,52 +49,49 @@ class Users_Repositorio:
 
     @staticmethod
     def get_users():
-        fabrica = fabrica_conexao.FabricaConexao.conectar()
         try:
-            cursor = fabrica.cursor()
-            cursor.execute("SELECT * FROM users")
+            fabrica = fabrica_conexao.FabricaConexao.conect()
+        except:
+            fabrica = fabrica_conexao.FabricaConexao.conectar()
 
-        finally:
-            fabrica.close()
+        cursor = fabrica.cursor()
+        cursor.execute("SELECT * FROM users")
 
         return cursor.fetchall()
 
     @staticmethod
     def get_word(id):
-        fabrica = fabrica_conexao.FabricaConexao.conectar()
         try:
-            cursor = fabrica.cursor()
-            cursor.execute(f"SELECT word FROM users WHERE id = {str(id)}")
+            fabrica = fabrica_conexao.FabricaConexao.conect()
+        except:
+            fabrica = fabrica_conexao.FabricaConexao.conectar()
 
-        finally:
-            fabrica.close()
+        cursor = fabrica.cursor()
+        try:
+            cursor.execute("SELECT word FROM users WHERE id = ?", (str(id),))
+        except:
+            cursor.execute("SELECT word FROM users WHERE id = %s", str(id))
 
         return cursor.fetchone()[0]
 
-    @staticmethod
-    def set_word(id, word):
-        fabrica = fabrica_conexao.FabricaConexao.conectar()
-        try:
-            cursor = fabrica.cursor()
-            cursor.execute("UPDATE users SET word = %s WHERE nick = %s", (str(word), str(id)))
-
-        finally:
-            fabrica.close()
 
     @staticmethod
     def get_recordsAll():
-        fabrica = fabrica_conexao.FabricaConexao.conectar()
         try:
-            cursor = fabrica.cursor()
-            cursor.execute("SELECT nick,record FROM users")
-        finally:
-            fabrica.close()
+            fabrica = fabrica_conexao.FabricaConexao.conect()
+        except:
+            fabrica = fabrica_conexao.FabricaConexao.conectar()
+
+        cursor = fabrica.cursor()
+        cursor.execute("SELECT nick,record FROM users")
+
         records = cursor.fetchall()
         records3 = []
         records2 = []
 
         for record in records:
             records3.append(record[1])
+
         records3.sort(reverse=True)
         records = list(records)
         while len(records2) < len(records):
@@ -121,15 +107,24 @@ class Users_Repositorio:
 
     @staticmethod
     def get_id(user):
-        fabrica = fabrica_conexao.FabricaConexao.conectar()
         try:
-            cursor = fabrica.cursor()
-            cursor.execute("SELECT * FROM users")
+            fabrica = fabrica_conexao.FabricaConexao.conect()
+        except:
+            fabrica = fabrica_conexao.FabricaConexao.conectar()
 
-        finally:
-            fabrica.close()
+        cursor = fabrica.cursor()
+        cursor.execute("SELECT * FROM users")
+
         a = cursor.fetchall()
         for x in a:
             if x[1].lower() == user.lower():
                 return x[0]
-        #return cursor.fetchall()[0]
+
+    @staticmethod
+    def get_status():
+        try:
+            fabrica_conexao.FabricaConexao.conect()
+        except:
+            return False
+
+        return True

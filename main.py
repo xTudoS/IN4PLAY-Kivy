@@ -24,7 +24,7 @@ import configparser
 Builder.load_file('main.kv')
 
 try:
-    import crypt # Unix
+    import crypt  # Unix
 except:
     import pcrypt as crypt  # Windows
 
@@ -39,14 +39,110 @@ Config.set('kivy', 'window_icon', 'img/logo.png')
 record = 0
 
 
+class User(Screen):
+    mudar_nick = 1
+    mudar_pass = 1
+
+    def nickMudar(self):
+        global mudar_nick
+        if self.mudar_nick == 1:
+            self.mudar_nick = 0
+            return 'Nickname'
+        elif self.mudar_nick == 0:
+            self.mudar_nick = None
+            self.ids.nick.text = ''
+
+    def passMudar(self):
+        if self.mudar_pass == 1:
+            self.mudar_pass = 0
+            return 'Password'
+        elif self.mudar_pass == 0:
+            self.ids.passwd.password = True
+            self.ids.passwd.text = ''
+            self.mudar_pass = None
+
+    def errorSingUp(self):
+        popup = ErrorSignUp()
+        popup.title = 'ERROR SIGN UP:'
+        popup.open()
+
+    def errorLogIn(self):
+        popup = ErrorLogIn()
+        popup.title = 'ERROR LOG IN:'
+        popup.open()
+
+    def remover_espacos(self, word):
+        a = ''
+        for x in word:
+            if x.isalnum():
+                a += x
+        return a
+
+    def signup(self):
+        usrs = users_repositorio.Users_Repositorio.get_users()
+        nickname = self.remover_espacos(self.ids.nick.text)
+        password = self.remover_espacos(self.ids.passwd.text)
+        if nickname.lower() == 'nickname' or password.lower() == 'password':
+            self.errorSingUp()
+            return None
+        if (4 <= len(password) <= 8) and (0 < len(nickname) <= 255):
+            for x in usrs:
+                if nickname.lower() == x[1].lower():
+                    self.errorSingUp()
+                    return None
+        else:
+            self.errorSingUp()
+            return None
+
+        salt = crypt.mksalt(crypt.METHOD_SHA512)
+        password = crypt.crypt(password, salt)
+        users_repositorio.Users_Repositorio.add_user(nickname, password, salt)
+        self.ids.passwd.text = ''
+        globals()['id_user'] = users_repositorio.Users_Repositorio.get_id(nickname)
+        self.manager.current = 'menu'
+        self.manager.transition.direction = 'left'
+
+    def login(self):
+        usrs = users_repositorio.Users_Repositorio.get_users()
+        nickname = self.ids.nick.text
+        password = self.remover_espacos(self.ids.passwd.text)
+        nickname = self.remover_espacos(nickname)
+        for x in usrs:
+            if nickname.lower() == x[1].lower():
+                salt = users_repositorio.Users_Repositorio.get_word(x[0])
+                password = crypt.crypt(password, salt)
+                if password == x[2]:
+                    self.ids.passwd.text = ''
+                    self.manager.current = 'menu'
+                    globals()['id_user'] = x[0]
+                    self.manager.transition.direction = 'left'
+                else:
+                    self.errorLogIn()
+                return None
+
+        else:
+            self.errorLogIn()
+
+
+class ErrorSignUp(Popup):
+    pass
+
+
+class ErrorLogIn(Popup):
+    pass
+
+
 class Telas(ScreenManager):
     pass
 
 
 class Welcome(Screen):
-    mixer.init()
-    mixer.music.load('sound/kalimba.mp3')
-    mixer.music.play(-1)
+    try:
+        mixer.init()
+        mixer.music.load('sound/kalimba.mp3')
+        mixer.music.play(-1)
+    except:
+        pass
 
     def on_pre_enter(self, *args):
         self.add_widget(Teste())
@@ -60,16 +156,24 @@ class Teste(BoxLayout):
 
         welcome = Label(text='\nWelcome', color=(0, 0, 0, 1), halign='center', font_name='fonts/DEPLETED_URANIUM.ttf',
                         font_size=60)
-        to = Label(text='\nTo', color=(0, 0, 0, 1), halign='right', font_size=60, font_name='fonts/DEPLETED_URANIUM.ttf')
+        to = Label(text='\nTo', color=(0, 0, 0, 1), halign='right', font_size=60,
+                   font_name='fonts/DEPLETED_URANIUM.ttf')
         in4play = Label(text='\nIN4PLAY', color=(0, 0, 0, 1), font_size=60, font_name='fonts/DEPLETED_URANIUM.ttf')
-        conexao = Label(text='\nClick anywhere on the screen', color=(0, 0, 0, 1), font_name='fonts/LittleBird.ttf',
-                        font_size=20)
+        click = Label(text='\nClick anywhere on the screen', color=(0, 0, 0, 1), font_name='fonts/LittleBird.ttf',
+                      font_size=20)
         logo = Image(source='img/logo.png')
+        off = '\nYOU ARE OFFLINE'
+        on = '\nARE YOU ONLINE'
+        status = users_repositorio.Users_Repositorio.get_status()
+        conexao = Label(text=on if status else off,
+                        color=get_color_from_hex('#148C02') if status else get_color_from_hex('#C20E0E'),
+                        font_name='fonts/LittleBird.ttf', font_size=20)
 
         textos.add_widget(logo)
         textos.add_widget(welcome)
         textos.add_widget(to)
         textos.add_widget(in4play)
+        textos.add_widget(click)
         textos.add_widget(conexao)
 
         self.add_widget(textos)
@@ -305,99 +409,6 @@ class Finish(Screen):
             users_repositorio.Users_Repositorio.set_record(id_user, r)
         self.ids.finish.text = f'Congratulations!\n\nYou have reached\n\nthe end of this round!\n\nFinal Score\n{r}'
         globals()['record'] = 0
-
-
-class User(Screen):
-    mudar_nick = 1
-    mudar_pass = 1
-
-    def nickMudar(self):
-        global mudar_nick
-        if self.mudar_nick == 1:
-            self.mudar_nick = 0
-            return 'Nickname'
-        elif self.mudar_nick == 0:
-            self.mudar_nick = None
-            self.ids.nick.text = ''
-
-    def passMudar(self):
-        if self.mudar_pass == 1:
-            self.mudar_pass = 0
-            return 'Password'
-        elif self.mudar_pass == 0:
-            self.ids.passwd.password = True
-            self.ids.passwd.text = ''
-            self.mudar_pass = None
-
-    def errorSingUp(self):
-        popup = ErrorSignUp()
-        popup.title = 'ERROR SIGN UP:'
-        popup.open()
-
-    def errorLogIn(self):
-        popup = ErrorLogIn()
-        popup.title = 'ERROR LOG IN:'
-        popup.open()
-
-    def remover_espacos(self, word):
-        a = ''
-        for x in word:
-            if x.isalnum():
-                a += x
-        return a
-
-    def signup(self):
-        usrs = users_repositorio.Users_Repositorio.get_users()
-        nickname = self.remover_espacos(self.ids.nick.text)
-        password = self.remover_espacos(self.ids.passwd.text)
-        if nickname.lower() == 'nickname' or password.lower() == 'password':
-            self.errorSingUp()
-            return None
-        if (4 <= len(password) <= 8) and (0 < len(nickname) <= 255):
-            for x in usrs:
-                if nickname.lower() == x[1].lower():
-                    self.errorSingUp()
-                    return None
-        else:
-            self.errorSingUp()
-            return None
-
-        salt = crypt.mksalt(crypt.METHOD_SHA512)
-        password = crypt.crypt(password, salt)
-        users_repositorio.Users_Repositorio.add_user(nickname, password, salt)
-        self.ids.passwd.text = ''
-        globals()['id_user'] = users_repositorio.Users_Repositorio.get_id(nickname)
-        self.manager.current = 'menu'
-        self.manager.transition.direction = 'left'
-
-    def login(self):
-        usrs = users_repositorio.Users_Repositorio.get_users()
-        nickname = self.ids.nick.text
-        password = self.remover_espacos(self.ids.passwd.text)
-        nickname = self.remover_espacos(nickname)
-        for x in usrs:
-            if nickname.lower() == x[1].lower():
-                salt = users_repositorio.Users_Repositorio.get_word(x[0])
-                password = crypt.crypt(password, salt)
-                if password == x[2]:
-                    self.ids.passwd.text = ''
-                    self.manager.current = 'menu'
-                    globals()['id_user'] = x[0]
-                    self.manager.transition.direction = 'left'
-                else:
-                    self.errorLogIn()
-                return None
-
-        else:
-            self.errorLogIn()
-
-
-class ErrorSignUp(Popup):
-    pass
-
-
-class ErrorLogIn(Popup):
-    pass
 
 
 class TimeOut(Screen):
