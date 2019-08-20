@@ -13,9 +13,9 @@ class FabricaConexao:
     @staticmethod
     def conect():
         db = pymysql.connect(
-            host='mysql.uhserver.com',
-            db='in4play',
-            user='xtudos',
-            passwd='passwdjooj2019*'
+            host='host',
+            db='db',
+            user='user',
+            passwd='password'
         )
         return db
